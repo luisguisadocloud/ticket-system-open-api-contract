@@ -98,9 +98,20 @@ The OpenAPI specification follows version 3.0.4 and includes:
 
 ## 📚 Learning Resources
 
-For a detailed explanation of the API-First approach and how this contract was created, visit:
+For a detailed explanation of the API-First approach and how this contract was created, visit these articles:
 
+### Part 1: Complete Guide & Introduction
 **[API-First Approach: OpenAPI Contract with Swagger](https://blog.luisguisado.cloud/enfoque-api-first-contrato-openapi-swagger/)**
+- Introduction to API-First development approach
+- Understanding OpenAPI specification and Swagger tools
+- Real-world scenario: Technical support ticket management system
+- Complete OpenAPI contract with all endpoints and schemas
+
+### Part 2: Detailed Contract Analysis
+**[API-First Approach with OpenAPI and Swagger 2: Example Explanation](https://blog.luisguisado.cloud/enfoque-api-first-con-openapi-y-swagger-2-explicacion-del-ejemplo/)**
+- Detailed breakdown of each OpenAPI contract section
+- Component-by-component analysis of schemas and responses
+- Best practices for error handling and response design
 
 ## 🚀 Getting Started
 
