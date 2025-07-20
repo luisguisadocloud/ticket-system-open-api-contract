@@ -39,28 +39,48 @@ The API revolves around **Ticket** entities, which are digital records used to t
 **Ticket Status Lifecycle:**
 - `NEW` → `OPEN` → `IN_PROGRESS` → `RESOLVED` → `CLOSED`
 
+**Ticket Priority Levels:**
+- `LOW` → `MEDIUM` → `HIGH` → `CRITICAL`
+
+**Ticket Types:**
+- `INCIDENT` - Technical issues or problems
+- `SERVICE_REQUEST` - Service requests or feature requests
+- `QUESTION` - General questions or inquiries
+
 ### Endpoints
 
 | Method | Endpoint | Description | Status Codes |
 |--------|----------|-------------|--------------|
-| `POST` | `/tickets` | Create a new ticket | 201, 400, 401, 500 |
-| `GET` | `/tickets` | List all tickets | 200, 401, 500 |
-| `GET` | `/tickets/{id}` | Get ticket by ID | 200, 401, 404, 500 |
-| `PUT` | `/tickets/{id}` | Update ticket | 200, 401, 404, 500 |
-| `DELETE` | `/tickets/{id}` | Delete ticket | 204, 401, 404, 500 |
-| `PATCH` | `/tickets/{id}/status` | Update ticket status | 204, 400, 401, 404, 500 |
+| `POST` | `/v1/tickets` | Create a new ticket | 201, 400, 401, 500 |
+| `GET` | `/v1/tickets` | List all tickets | 200, 401, 500 |
+| `GET` | `/v1/tickets/{id}` | Get ticket by ID | 200, 400, 401, 404, 500 |
+| `PUT` | `/v1/tickets/{id}` | Update ticket (total replacement) | 200, 400, 401, 404, 500 |
+| `PATCH` | `/v1/tickets/{id}` | Update ticket (partial update) | 204, 400, 401, 404, 500 |
+| `DELETE` | `/v1/tickets/{id}` | Delete ticket | 204, 400, 401, 404, 500 |
 
 ### Data Models
 
 #### Request Schemas
-- **CreateTicketRequest**: Required fields for ticket creation
-- **UpdateTicketRequest**: Complete ticket update with all fields
-- **StatusUpdateRequest**: Status-only updates
+- **CreateTicketRequest**: Required fields for ticket creation (title, description, reporterId)
+- **UpdateTicketRequest**: Complete ticket update with all required fields
+- **PatchTicketRequest**: Partial ticket updates (any combination of fields)
+
+> **🔒 Security Note**: In a production environment, the `reporterId` field should not be included in the request payload. Instead, it should be automatically extracted from the JWT token's user context to prevent impersonation attacks. The current specification includes `reporterId` in requests for educational purposes and API contract completeness, but real implementations should derive this value from the authenticated user's identity.
 
 #### Response Schemas
-- **TicketResponse**: Complete ticket information with metadata
+- **TicketResponse**: Complete ticket information including:
+  - `id`: Unique identifier (UUID)
+  - `title`: Brief title describing the issue (1-50 characters)
+  - `description`: Detailed description (1-250 characters)
+  - `status`: Current status (NEW, OPEN, IN_PROGRESS, RESOLVED, CLOSED)
+  - `reporterId`: UUID of the user who reported the ticket
+  - `assignedToId`: UUID of the assigned agent (nullable)
+  - `priority`: Urgency level (LOW, MEDIUM, HIGH, CRITICAL)
+  - `type`: Ticket category (INCIDENT, SERVICE_REQUEST, QUESTION)
+  - `createdAt`: Timestamp when ticket was created
+  - `updatedAt`: Timestamp when ticket was last updated
 - **ListTicketResponse**: Array of tickets
-- **ErrorResponse**: Standardized error format
+- **ErrorResponse**: Standardized error format with code, message, and optional details
 
 ### Security
 
@@ -77,8 +97,21 @@ Comprehensive error responses for different scenarios:
 |------------|------|-------------|
 | `UnauthorizedError` | 401 | Missing or invalid token |
 | `NotFoundError` | 404 | Resource not found |
-| `BadRequestError` | 400 | Invalid input data |
+| `BadRequestError` | 400 | Invalid input data or malformed UUID |
 | `InternalServerError` | 500 | Unexpected server error |
+
+**Error Response Format:**
+```json
+{
+  "code": "bad_request",
+  "message": "Validation failed",
+  "details": [
+    "Title is required and must be between 1 and 50 characters",
+    "Description is required and must be between 1 and 250 characters",
+    "Reporter ID must be a valid UUID format"
+  ]
+}
+```
 
 ## 🛠️ Development Tools
 
@@ -138,7 +171,8 @@ You can view the interactive API documentation by:
 ```
 ticket-system-open-api-contract/
 ├── openapi.yaml          # Main OpenAPI specification
-└── README.md            # This file
+├── README.md            # This file
+└── LICENSE              # MIT License
 ```
 
 ## 🤝 Contributing
@@ -165,11 +199,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This repository demonstrates:
 
-1. **API Design Principles**: RESTful design patterns
+1. **API Design Principles**: RESTful design patterns with proper HTTP methods
 2. **OpenAPI Best Practices**: Proper schema definitions and references
-3. **Error Handling**: Comprehensive error response patterns
+3. **Error Handling**: Comprehensive error response patterns with detailed validation messages
 4. **Security**: Authentication and authorization patterns
-5. **Documentation**: Self-documenting API contracts
-6. **Validation**: Input/output validation schemas
+5. **Documentation**: Self-documenting API contracts with examples
+6. **Validation**: Input/output validation schemas with proper constraints
+7. **Versioning**: API versioning with `/v1/` prefix
+8. **Status Codes**: Proper HTTP status code usage for different scenarios
 
-Perfect for developers learning API design, OpenAPI specification, or preparing for serverless implementations with AWS Lambda and API Gateway. 
+Suitable for developers learning API design, OpenAPI specification, or preparing for serverless implementations with AWS Lambda and API Gateway. 
